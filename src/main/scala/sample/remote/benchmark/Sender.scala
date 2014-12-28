@@ -16,6 +16,7 @@ object Sender {
     val system = ActorSystem("Sys", ConfigFactory.load("calculator"))
 
     val remoteHostPort = if (args.length >= 1) args(0) else "127.0.0.1:2553"
+    //val remoteHostPort = if (args.length >= 1) args(0) else "192.168.0.2:2553"
     val remotePath = s"akka.tcp://Sys@$remoteHostPort/user/rcv"
     val totalMessages = if (args.length >= 2) args(1).toInt else 500000
     val burstSize = if (args.length >= 3) args(2).toInt else 5000
@@ -105,12 +106,8 @@ class Sender(path: String, totalMessages: Int, burstSize: Int, payloadSize: Int)
     case Terminated(`actor`) =>
       println("Receiver terminated")
       context.system.shutdown()
-
   }
 
-  /**
-   * @return remaining messages after sending the batch
-   */
   def sendBatch(actor: ActorRef, remaining: Int): Int = {
     val batchSize = math.min(remaining, burstSize)
     (1 to batchSize) foreach { x => actor ! payload }
